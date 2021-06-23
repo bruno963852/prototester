@@ -1,4 +1,5 @@
 import uos
+import math
 from micropython import const
 from statemachine.state import State # pylint: disable=import-error,no-name-in-module
 from view.screens.select_screen import SelectScreen # pylint: disable=import-error,no-name-in-module
@@ -9,13 +10,28 @@ MAX_ITEMS = const(5)
 class Select(State):
     def __init__(self):
         self.options = uos.listdir('protocols')
-        self.window = self.options[:MAX_ITEMS]
-        self.offset = 0
+        self.pages = math.ceil(len(self.options) / MAX_ITEMS)
         self.selected = 0
-        self.screen = SelectScreen()
+        self.screen = SelectScreen(self.pages)
+
+    @property
+    def page_index(self) -> int:
+        return math.floor(self.selected / MAX_ITEMS)
+
+    @property
+    def page(self) -> list:
+        start = self.page_index * MAX_ITEMS
+        return self.options[start: start + MAX_ITEMS]
+
+    @property
+    def selected_in_page(self):
+        return self.selected % MAX_ITEMS
+
+    def show(self):
+        self.screen.show(self.page, self.selected_in_page, self.page_index)
 
     def run(self):
-        self.screen.show(self.window, self.selected)
+        self.show()
         btn_controller = ButtonController.instance()
         btn_controller.set_handler(ButtonController.DOWN, self.increment_selecion)
         btn_controller.set_handler(ButtonController.UP, self.decrement_selection)
@@ -27,22 +43,15 @@ class Select(State):
         return Select()
 
     def increment_selecion(self, _):
-        if self.selected >= len(self.window) - 1:
-            if self.selected >= len(self.options):
-                self.selected = 0
-                self.offset = 0
-            else:
-                self.selected += 1
-                self.offset += 1
-                self.window = self.options[self.offset:MAX_ITEMS + self.offset]
+        if self.selected >= len(self.options) - 1:
+            self.selected = 0
         else:
             self.selected += 1
-        self.screen.show(self.options, self.selected)
+        self.show()
 
     def decrement_selection(self, _):
-        if self.selected < self.offset:
-            if self.selected == 0:
-                self.selected = len(self.options) - 1
+        if self.selected == 0:
+            self.selected = len(self.options) - 1
         else:
             self.selected -= 1
-        self.screen.show(self.options, self.selected)
+        self.show()
