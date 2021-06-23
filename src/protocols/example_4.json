@@ -1,0 +1,13 @@
+{
+    "name": "example 02",
+    "buffer_size": 20,
+    "frame_timeout": 1000,
+    "messages": [
+        {
+            "message_type": "ascii",
+            "message_content": "marco",
+            "response": "polo",
+            "response_time": 1000
+        }
+    ]
+}

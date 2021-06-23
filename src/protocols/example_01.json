@@ -1,0 +1,25 @@
+{
+    "name": "example 01",
+    "buffer_size": 20,
+    "frame_timeout": 1000,
+    "messages": [
+        {
+            "message_type": "ascii",
+            "message_content": "hi",
+            "response": "hello",
+            "response_time": 0
+        },
+        {
+            "message_type": "ascii",
+            "message_content": "hello",
+            "response": "hi",
+            "response_time": 0
+        },
+        {
+            "message_type": "hex",
+            "message_content": "000102",
+            "response": "030405",
+            "response_time": 0
+        }
+    ]
+}
